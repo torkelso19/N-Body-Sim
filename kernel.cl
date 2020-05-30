@@ -52,8 +52,8 @@ __kernel void n_body(
         pos[i] = r;
 
         //Write position to global memory output
-        //(maybe write to local mem and global at end)
-        if ((j % UPDATE_FREQ == 0 && j != 0) || j == SIM_FRAMES - 1) {
+        //(maybe write to local mem and global with asynch copy at end)
+        if ((j+1) % UPDATE_FREQ == 0) {
             output_pos[output_count*NUM_BODIES + i] = r;
             output_count++;
         }

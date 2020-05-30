@@ -14,21 +14,16 @@ int main(void) {
     const int PRINT_FILE = 1;
 
     const int NUM_BODIES = 9;
-    const int HOURS = 24; // sim for a day per batch
+    const int HOURS = 24*7; // sim for a week per batch
     const double dt = 1; // 1 hours computed at once
-    const int UPDATE_FREQ = 24; //Preferably factor of hours for equal time scaling in output data
-    const int NUM_BATCHES = 365; //Number Iterations
+    const int UPDATE_FREQ = 25; //Preferably factor of hours for equal time scaling in output data
+    const int NUM_BATCHES = 52; //Number Iterations
 
-    const int SIM_FRAMES = (int)(double)HOURS / dt;
+    const int SIM_FRAMES_EST = (int)round((double)HOURS/dt);
+    const int alignment = SIM_FRAMES_EST % UPDATE_FREQ;
+    const int SIM_FRAMES = (alignment == 0) ? SIM_FRAMES_EST : SIM_FRAMES_EST + UPDATE_FREQ - alignment; //Aligns frames to include more if necessary
 
-    int output_count = 0;
-    for (int j = 0; j < SIM_FRAMES; j++) {
-        if ((j % UPDATE_FREQ == 0 && j != 0) || j == SIM_FRAMES - 1) {
-            output_count++;
-        }
-    }
-    const int OUTPUT_FRAMES = output_count;
-    //const int OUTPUT_FRAMES = SIM_FRAMES / UPDATE_FREQ; //Ideally
+    const int OUTPUT_FRAMES = SIM_FRAMES / UPDATE_FREQ;
 
     cl_double* mass_data = (cl_double*)malloc(sizeof(cl_double) * NUM_BODIES);
     cl_double3* pos_data = (cl_double3*)malloc(sizeof(cl_double3) * NUM_BODIES);
