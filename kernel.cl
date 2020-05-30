@@ -13,7 +13,7 @@ __kernel void n_body(
     // Get the index of the current element
     uint i = get_global_id(0);
 
-    const double G = 3.96413586e-14; // AU / (Solar Mass * sec^2)
+    const double G = 5.1375200746e-7; // AU / (Solar Mass * sec^2)
     const double softening = 0.000001;
 
     __private double3 r = pos[i];
@@ -35,7 +35,7 @@ __kernel void n_body(
         a.z = 0;
 
         for (int k = 0; k < NUM_BODIES; k++) {
-            if (k == i) continue;
+            //if (k == i) continue;
             len = pos[k] - r;
             mag = distance(r, pos[k]);
             square = pown(mag, 2);

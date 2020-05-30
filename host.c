@@ -13,9 +13,9 @@ int main(void) {
     const int PRINT_FILE = 1;
 
     const int NUM_BODIES = 9;
-    const int SECONDS = 60*60*24*365;
-    const double dt = 60*60; // seconds computed at once
-    const int UPDATE_FREQ = 24;
+    const int SECONDS = 24*365*5; // sim for a year
+    const double dt = 4; // 4 hours computed at once
+    const int UPDATE_FREQ = 24; //output every day
 
     const int SIM_FRAMES = (int)(double)SECONDS / dt;
     const int OUTPUT_FRAMES = (int)(SIM_FRAMES/UPDATE_FREQ);
@@ -62,10 +62,12 @@ int main(void) {
         NUM_BODIES * sizeof(cl_double3), NULL, &ret);
     cl_mem vel_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY,
         NUM_BODIES * sizeof(cl_double3), NULL, &ret);
-    cl_mem output_pos_mem_obj = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+    cl_mem output_pos_mem_obj = clCreateBuffer(context, CL_MEM_READ_WRITE,
         NUM_BODIES * OUTPUT_FRAMES * sizeof(cl_double3), NULL, &ret);
-    cl_mem output_vel_mem_obj = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+    cl_mem output_vel_mem_obj = clCreateBuffer(context, CL_MEM_READ_WRITE,
         NUM_BODIES * sizeof(cl_double3), NULL, &ret);
+
+    ret = clFinish(command_queue);
 
     // Copy to their respective memory buffers
     ret = clEnqueueWriteBuffer(command_queue, mass_mem_obj, CL_TRUE, 0,
@@ -74,6 +76,8 @@ int main(void) {
         NUM_BODIES * sizeof(cl_double3), pos_data, 0, NULL, NULL);
     ret = clEnqueueWriteBuffer(command_queue, vel_mem_obj, CL_TRUE, 0,
         NUM_BODIES * sizeof(cl_double3), vel_data, 0, NULL, NULL);
+
+    ret = clFinish(command_queue);
 
     // Create a program from the kernel source
     cl_program program = clCreateProgramWithSource(context, 1,
