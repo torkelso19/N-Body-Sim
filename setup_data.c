@@ -29,55 +29,55 @@ void setup_data(int NUM_BODIES,
     pos_data[1].y = (5014513e3) / AU;
     vel_data[1].x = (-4201) / AU;
     vel_data[1].y = (-48017) / AU;
-    /*
+    
     //Venus
-    mass_data[2] = (4.8675e24)/M;
-    pos_data[2].x = -47556114e3;
-    pos_data[2].y = -97504484e3;
-    vel_data[2].x = 31368;
-    vel_data[2].y = -15299;
-
+    mass_data[2] = (4.8675e24) / M;
+    pos_data[2].x = (-47556114e3) / AU;
+    pos_data[2].y = (-97504484e3) / AU;
+    vel_data[2].x = (31368) / AU;
+    vel_data[2].y = (-15299) / AU;
+    
     //Earth
     mass_data[3] = (5.9724e24)/M;
-    pos_data[3].x = -59246036e3;
-    pos_data[3].y = -139574913e3;
-    vel_data[3].x = 27063;
-    vel_data[3].y = -11487;
-
+    pos_data[3].x = (-59246036e3) / AU;
+    pos_data[3].y = (-139574913e3) / AU;
+    vel_data[3].x = (27063) / AU;
+    vel_data[3].y = (-11487) / AU;
+    
     //Mars
     mass_data[4] = (6.4171e23)/M;
-    pos_data[4].x = 89258838e3;
-    pos_data[4].y = -191416197e3;
-    vel_data[4].x = 23564;
-    vel_data[4].y = 10988;
-
+    pos_data[4].x = (89258838e3) / AU;
+    pos_data[4].y = (-191416197e3) / AU;
+    vel_data[4].x = (23564) / AU;
+    vel_data[4].y = (10988) / AU;
+    
     //Jupiter
     mass_data[5] = (1.89819e27)/M;
-    pos_data[5].x = 239138144e3;
-    pos_data[5].y = -735991528e3;
-    vel_data[5].x = 12458;
-    vel_data[5].y = 4048;
+    pos_data[5].x = (239138144e3) / AU;
+    pos_data[5].y = (-735991528e3) / AU;
+    vel_data[5].x = (12458) / AU;
+    vel_data[5].y = (4048) / AU;
 
     //Saturn
     mass_data[6] = (5.6834e26)/M;
-    pos_data[6].x = 680357985e3;
-    pos_data[6].y = -1335277729e3;
-    vel_data[6].x = 8197;
-    vel_data[6].y = 4177;
+    pos_data[6].x = (680357985e3) / AU;
+    pos_data[6].y = (-1335277729e3) / AU;
+    vel_data[6].x = (8197) / AU;
+    vel_data[6].y = (4177) / AU;
 
     //Uranus
     mass_data[7] = (8.6813e25)/M;
-    pos_data[7].x = 2365598985e3;
-    pos_data[7].y = 1782606696e3;
-    vel_data[7].x = -3972;
-    vel_data[7].y = 5270;
+    pos_data[7].x = (2365598985e3) / AU;
+    pos_data[7].y = (1782606696e3) / AU;
+    vel_data[7].x = (-3972) / AU;
+    vel_data[7].y = (5270) / AU;
 
     //Neptune
     mass_data[8] = (1.02413e26)/M;
-    pos_data[8].x = 4395276526e3;
-    pos_data[8].y = -854355209e3;
-    vel_data[8].x = 1049;
-    vel_data[8].y = 5399;
-    */
+    pos_data[8].x = (4395276526e3) / AU;
+    pos_data[8].y = (-854355209e3) / AU;
+    vel_data[8].x = (1049) / AU;
+    vel_data[8].y = (5399) / AU;
+    
 
 }

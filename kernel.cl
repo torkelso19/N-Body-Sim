@@ -1,5 +1,6 @@
 __kernel void n_body(
     const int SIM_FRAMES,
+    const int UPDATE_FREQ,
     const int NUM_BODIES,
     const double dt,
     __global double* mass,
@@ -24,8 +25,10 @@ __kernel void n_body(
     __private double square;
     __private double3 len;
 
-    for (int j = 0; j < SIM_FRAMES; j++) {
+    __private int output_count = 0;
 
+    for (int j = 0; j < SIM_FRAMES; j++) {
+        barrier(CLK_GLOBAL_MEM_FENCE);
         //Compute acceleration due to each other body
         a.x = 0;
         a.y = 0;
@@ -51,7 +54,10 @@ __kernel void n_body(
 
         //Write position to global memory output
         //(maybe write to local mem and global at end)
-        output_pos[j * NUM_BODIES + i] = r;
+        if (j % UPDATE_FREQ == 0) {
+            output_pos[output_count*NUM_BODIES + i] = r;
+            output_count++;
+        }
     }
     output_vel[i] = v;
 }

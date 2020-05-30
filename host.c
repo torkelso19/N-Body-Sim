@@ -9,14 +9,16 @@
 
 int main(void) {
     // Create data needed
-    const int PRINT_CONSOLE = 1;
+    const int PRINT_CONSOLE = 0;
     const int PRINT_FILE = 1;
 
-    const int NUM_BODIES = 2;
-    const int SECONDS = 60;
+    const int NUM_BODIES = 9;
+    const int SECONDS = 60*60*24*365;
+    const double dt = 60*60; // seconds computed at once
+    const int UPDATE_FREQ = 24;
 
-    const double dt = 1; // seconds computed at once
     const int SIM_FRAMES = (int)(double)SECONDS / dt;
+    const int OUTPUT_FRAMES = (int)(SIM_FRAMES/UPDATE_FREQ);
 
     cl_double* mass_data = (cl_double*)malloc(sizeof(cl_double) * NUM_BODIES);
     cl_double3* pos_data = (cl_double3*)malloc(sizeof(cl_double3) * NUM_BODIES);
@@ -61,7 +63,7 @@ int main(void) {
     cl_mem vel_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY,
         NUM_BODIES * sizeof(cl_double3), NULL, &ret);
     cl_mem output_pos_mem_obj = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-        NUM_BODIES * SIM_FRAMES * sizeof(cl_double3), NULL, &ret);
+        NUM_BODIES * OUTPUT_FRAMES * sizeof(cl_double3), NULL, &ret);
     cl_mem output_vel_mem_obj = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
         NUM_BODIES * sizeof(cl_double3), NULL, &ret);
 
@@ -85,13 +87,14 @@ int main(void) {
 
     // Set the arguments of the kernel
     ret = clSetKernelArg(kernel, 0, sizeof(int), (void*)&SIM_FRAMES);
-    ret = clSetKernelArg(kernel, 1, sizeof(int), (void*)&NUM_BODIES);
-    ret = clSetKernelArg(kernel, 2, sizeof(double), (void*)&dt);
-    ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void*)&mass_mem_obj);
-    ret = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void*)&pos_mem_obj);
-    ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void*)&vel_mem_obj);
-    ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void*)&output_pos_mem_obj);
-    ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void*)&output_vel_mem_obj);
+    ret = clSetKernelArg(kernel, 1, sizeof(int), (void*)&UPDATE_FREQ);
+    ret = clSetKernelArg(kernel, 2, sizeof(int), (void*)&NUM_BODIES);
+    ret = clSetKernelArg(kernel, 3, sizeof(double), (void*)&dt);
+    ret = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void*)&mass_mem_obj);
+    ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void*)&pos_mem_obj);
+    ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void*)&vel_mem_obj);
+    ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void*)&output_pos_mem_obj);
+    ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void*)&output_vel_mem_obj);
 
     //Block
     ret = clFinish(command_queue);
@@ -107,20 +110,20 @@ int main(void) {
     //Block until computation completed
     ret = clFinish(command_queue);
 
-    //Read the memory buffer C on the device to the local variable C
-    cl_double3* output_pos_data = (cl_double3*)malloc(sizeof(cl_double3) * NUM_BODIES * SIM_FRAMES);
-    cl_double3* output_vel_data = (cl_double3*)malloc(sizeof(cl_double3) * NUM_BODIES);
-    ret = clEnqueueReadBuffer(command_queue, output_pos_mem_obj, CL_TRUE, 0,
-        sizeof(cl_double3) * NUM_BODIES * SIM_FRAMES, output_pos_data, 0, NULL, NULL);
-    ret = clEnqueueReadBuffer(command_queue, output_vel_mem_obj, CL_TRUE, 0,
-        sizeof(cl_double3) * NUM_BODIES, output_vel_data, 0, NULL, NULL);
-
-    //Block
-    ret = clFinish(command_queue);
-
     //Finish Timer
     size_t diff = clock() - before;
     int time_milli = diff * 1000 / CLOCKS_PER_SEC;
+
+    //Read the memory buffer C on the device to the local variable C
+    cl_double3* output_pos_data = (cl_double3*)malloc(sizeof(cl_double3) * NUM_BODIES * OUTPUT_FRAMES);
+    cl_double3* output_vel_data = (cl_double3*)malloc(sizeof(cl_double3) * NUM_BODIES);
+    ret = clEnqueueReadBuffer(command_queue, output_pos_mem_obj, CL_TRUE, 0,
+        sizeof(cl_double3) * NUM_BODIES * OUTPUT_FRAMES, output_pos_data, 0, NULL, NULL);
+    ret = clFinish(command_queue);
+    ret = clEnqueueReadBuffer(command_queue, output_vel_mem_obj, CL_TRUE, 0,
+        sizeof(cl_double3) * NUM_BODIES, output_vel_data, 0, NULL, NULL);
+    //Block
+    ret = clFinish(command_queue);
 
     if (PRINT_CONSOLE) {
         printf("Frame Init:\n\n");
@@ -132,7 +135,7 @@ int main(void) {
                 pos_data[j].z);
         }
         printf("----------\n\n");
-        for (int i = 0; i < SIM_FRAMES; i++) {
+        for (int i = 0; i < OUTPUT_FRAMES; i++) {
             printf("Frame %d:\n\n", i);
             for (int j = 0; j < NUM_BODIES; j++) {
                 printf("Body = %d\nX=%lf\nY=%lf\nZ=%lf\n\n",
@@ -169,7 +172,7 @@ int main(void) {
             if (j != NUM_BODIES - 1) fprintf(fp2, ":");
         }
         fprintf(fp2, "\n");
-        for (int i = 0; i < SIM_FRAMES; i++) {
+        for (int i = 0; i < OUTPUT_FRAMES; i++) {
             for (int j = 0; j < NUM_BODIES; j++) {
                 fprintf(fp2, "%lf,%lf,%lf",
                     output_pos_data[i * NUM_BODIES + j].x,
