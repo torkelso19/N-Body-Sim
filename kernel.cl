@@ -13,7 +13,7 @@ __kernel void n_body(
     // Get the index of the current element
     uint i = get_global_id(0);
 
-    const double G = 5.1375200746e-7; // AU / (Solar Mass * hour^2)
+    const double G = 5.1375200746e-7; // AU^3 / (Solar Mass * hour^2)
     const double softening = 0.000001;
 
     __private double3 r = pos[i];
