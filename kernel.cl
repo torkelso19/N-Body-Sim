@@ -1,4 +1,5 @@
 __kernel void n_body(
+    const int INIT_BATCH,
     const int SIM_FRAMES,
     const int UPDATE_FREQ,
     const int NUM_BODIES,
@@ -13,7 +14,7 @@ __kernel void n_body(
     // Get the index of the current element
     uint i = get_global_id(0);
 
-    const double G = 5.1375200746e-7; // AU^3 / (Solar Mass * hour^2)
+    const double G = 0.000295921156297; //AU^3 / (Solar Mass * day^2)
     const double softening = 0.000001;
 
     __private double3 r = pos[i];
@@ -42,6 +43,8 @@ __kernel void n_body(
         }
 
         a *= G;
+
+        if (j == 0 && INIT_BATCH == 1) v -= 0.5 * a * dt; //Correction of velocity for leap frog alg
 
         v += a * dt;
         r += v * dt;

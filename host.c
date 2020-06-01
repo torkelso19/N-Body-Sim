@@ -13,13 +13,13 @@ int main(void) {
     const int PRINT_CONSOLE = 0;
     const int PRINT_FILE = 1;
 
-    const int NUM_BODIES = 10;
-    const int HOURS = 24*7; // sim for a year per batch
-    const double dt = 1; // 1 hours computed at once
-    const int UPDATE_FREQ = 8; //Preferably factor of hours for equal time scaling in output data
-    const int NUM_BATCHES = 52*10; //Number Iterations
+    const int NUM_BODIES = 11;
+    const int DAYS = 10; // sim for a year per batch
+    const double dt = 1; //Days computed at once
+    const int UPDATE_FREQ = 1; //Every how many dt to output data
+    const int NUM_BATCHES = 3; //Number Iterations
 
-    const int SIM_FRAMES_EST = (int)round((double)HOURS/dt);
+    const int SIM_FRAMES_EST = (int)round((double)DAYS/dt);
     const int alignment = SIM_FRAMES_EST % UPDATE_FREQ;
     const int SIM_FRAMES = (alignment == 0) ? SIM_FRAMES_EST : SIM_FRAMES_EST + UPDATE_FREQ - alignment; //Aligns frames to include more if necessary
 
@@ -99,6 +99,8 @@ int main(void) {
 
     //Execute each batch
     for (int u = 0; u < NUM_BATCHES; u++) {
+        const int INIT_BATCH = u == 0 ? 1 : 0;
+
         // Copy data to respective memory buffers
         ret = clEnqueueWriteBuffer(command_queue, mass_mem_obj, CL_TRUE, 0,
             NUM_BODIES * sizeof(cl_double), mass_data, 0, NULL, NULL);
@@ -109,15 +111,16 @@ int main(void) {
         ret = clFinish(command_queue);
 
         // Set the arguments of the kernel
-        ret = clSetKernelArg(kernel, 0, sizeof(int), (void*)&SIM_FRAMES);
-        ret = clSetKernelArg(kernel, 1, sizeof(int), (void*)&UPDATE_FREQ);
-        ret = clSetKernelArg(kernel, 2, sizeof(int), (void*)&NUM_BODIES);
-        ret = clSetKernelArg(kernel, 3, sizeof(double), (void*)&dt);
-        ret = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void*)&mass_mem_obj);
-        ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void*)&pos_mem_obj);
-        ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void*)&vel_mem_obj);
-        ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void*)&output_pos_mem_obj);
-        ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void*)&output_vel_mem_obj);
+        ret = clSetKernelArg(kernel, 0, sizeof(int), (void*)&INIT_BATCH);
+        ret = clSetKernelArg(kernel, 1, sizeof(int), (void*)&SIM_FRAMES);
+        ret = clSetKernelArg(kernel, 2, sizeof(int), (void*)&UPDATE_FREQ);
+        ret = clSetKernelArg(kernel, 3, sizeof(int), (void*)&NUM_BODIES);
+        ret = clSetKernelArg(kernel, 4, sizeof(double), (void*)&dt);
+        ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void*)&mass_mem_obj);
+        ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void*)&pos_mem_obj);
+        ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void*)&vel_mem_obj);
+        ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void*)&output_pos_mem_obj);
+        ret = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void*)&output_vel_mem_obj);
 
         // Execute the OpenCL kernel on the list
         size_t global_item_size = NUM_BODIES; // Process the entire lists
